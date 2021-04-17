@@ -1,0 +1,125 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8" />
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+	// set the dimensions of the graph
+	(width = 800), (height = 600);
+
+	// append the svg object to the body of the page
+	var svg = d3
+		.select('#my_dataviz')
+		.append('svg')
+		.attr('width', width)
+		.attr('height', height)
+		.append('g')
+		.attr('transform', 'translate(60,10)');
+
+	d3.csv('http://localhost:7000/dataset/Train.csv', function (data) {
+		// Add X axis
+		var x = d3.scaleLinear().domain([0, 110]).range([0, 410]);
+		svg
+			.append('g')
+			.attr('transform', 'translate(0,490)')
+			.call(d3.axisBottom(x));
+
+		// Add Y axis
+		var y = d3.scaleLinear().domain([0, 500]).range([490, 0]);
+		svg.append('g').call(d3.axisLeft(y));
+
+		// Title
+		svg
+			.append('text')
+			.attr('x', 250)
+			.attr('y', 10)
+			.attr('text-anchor', 'middle')
+			.style('font-family', 'Helvetica')
+			.style('font-size', 20)
+			.text('Scatter Plot - Ecommerce Shipping Data ');
+
+		// X label
+		svg
+			.append('text')
+			.attr('x', 200)
+			.attr('y', 530)
+			.attr('text-anchor', 'middle')
+			.style('font-family', 'Helvetica')
+			.style('font-size', 12)
+			.text('Product ID');
+
+		// Y label
+		svg
+			.append('text')
+			.attr('text-anchor', 'middle')
+			.attr('transform', 'translate(-30, 300)rotate(-90)')
+			.style('font-family', 'Helvetica')
+			.style('font-size', 12)
+			.text('Cost of the Product');
+
+		// tooltip for mouseover and mouseout events
+		var tooltip = d3
+			.select('body')
+			.append('div')
+			.style('position', 'absolute')
+			.style('z-index', '10')
+			.style('visibility', 'hidden')
+			.style('background', 'white')
+			.style('width', '620px')
+			.style('margin-left', '50px');
+
+		// Add dots
+		svg
+			.append('g')
+			.selectAll('dot')
+			.data(data)
+			.enter()
+			.append('circle')
+			.attr('cx', function (d) {
+				return x(d.ID);
+			})
+			.attr('cy', function (d) {
+				return y(d.Cost_of_the_Product);
+			})
+			.attr('r', 3.5)
+			.style('fill', 'Green')
+			// adding mouse over event to every dot
+			.on('mouseover', function (d, i) {
+				// increasing the size of the circle
+				d3.select(this).transition().duration('100').attr('r', 7);
+				// adding the tooltip
+				tooltip.text(
+					'Warehouse_block: ' +
+						d.Warehouse_block +
+						'Mode_of_Shipment: ' +
+						d.Mode_of_Shipment +
+						'Customer_care_calls: ' +
+						d.Customer_care_calls +
+						'Customer_rating: ' +
+						d.Customer_rating +
+						'Cost_of_the_Product: ' +
+						d.Prior_purchases +
+						'Gender: ' +
+						d.Gender +
+						'Discount_offered: ' +
+						d.Discount_offered +
+						'Weight_in_gms: ' +
+						d.Weight_in_gms
+				);
+				return tooltip.style('visibility', 'visible');
+			})
+			// adding mouse out event to every dot
+			.on('mouseout', function (d, i) {
+				// resetting the size of the circle
+				d3.select(this).transition().duration('200').attr('r', 3);
+				// resetting the tooltip
+				tooltip.text('');
+				tooltip.style('visibility', 'hidden');
+			});
+	});
+</script>
